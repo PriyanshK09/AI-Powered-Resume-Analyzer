@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Moon, Sun, Bot, Menu, X } from "lucide-react"
 
@@ -77,7 +78,7 @@ export default function Header({ darkMode, setDarkMode, scrollY }: HeaderProps) 
             
             <div className="relative flex items-center justify-between">
               {/* Logo */}
-              <div className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer">
+              <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-violet-500 via-purple-500 to-violet-600 rounded-xl blur-lg opacity-60 group-hover:opacity-90 transition-all duration-500 ease-out scale-95 group-hover:scale-110"></div>
                   <div className="relative w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-violet-500 via-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg transform transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-3">
@@ -87,7 +88,7 @@ export default function Header({ darkMode, setDarkMode, scrollY }: HeaderProps) 
                 <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-violet-600 bg-clip-text text-transparent transition-all duration-500 ease-out group-hover:from-violet-700 group-hover:via-purple-700 group-hover:to-violet-700">
                   ResuMate
                 </span>
-              </div>
+              </Link>
 
               {/* Desktop Navigation */}
               <nav className="hidden lg:flex items-center space-x-2">
@@ -123,27 +124,31 @@ export default function Header({ darkMode, setDarkMode, scrollY }: HeaderProps) 
                 </Button>
 
                 {/* Sign In Button - Desktop Only */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="hidden md:flex font-medium rounded-full px-4 sm:px-6 py-2 transition-all duration-500 ease-out hover:scale-105 text-sm relative overflow-hidden group"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-violet-50 via-purple-50 to-violet-50 dark:from-slate-800/50 dark:via-slate-700/50 dark:to-slate-800/50 rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-500 ease-out"></div>
-                  <span className="relative z-10 transition-colors duration-300 group-hover:text-violet-600 dark:group-hover:text-violet-400 dark:text-slate-300">Sign In</span>
-                </Button>
+                <Link href="/auth/signin">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hidden md:flex font-medium rounded-full px-4 sm:px-6 py-2 transition-all duration-500 ease-out hover:scale-105 text-sm relative overflow-hidden group"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-50 via-purple-50 to-violet-50 dark:from-slate-800/50 dark:via-slate-700/50 dark:to-slate-800/50 rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-500 ease-out"></div>
+                    <span className="relative z-10 transition-colors duration-300 group-hover:text-violet-600 dark:group-hover:text-violet-400 dark:text-slate-300">Sign In</span>
+                  </Button>
+                </Link>
 
                 {/* CTA Button */}
-                <Button
-                  size="sm"
-                  className="group relative bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 dark:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-500 ease-out font-medium px-4 sm:px-6 py-2 rounded-full overflow-hidden text-sm hover:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
-                  <span className="relative z-10 flex items-center text-white">
-                    <span className="hidden sm:inline">Get Started</span>
-                    <span className="sm:hidden">Start</span>
-                    <ArrowRight className="ml-1.5 sm:ml-2 w-3 h-3 transition-transform duration-500 ease-out group-hover:translate-x-1 group-hover:scale-110" />
-                  </span>
-                </Button>
+                <Link href="/auth/register">
+                  <Button
+                    size="sm"
+                    className="group relative bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 dark:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-500 ease-out font-medium px-4 sm:px-6 py-2 rounded-full overflow-hidden text-sm hover:scale-105"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                    <span className="relative z-10 flex items-center text-white">
+                      <span className="hidden sm:inline">Get Started</span>
+                      <span className="sm:hidden">Start</span>
+                      <ArrowRight className="ml-1.5 sm:ml-2 w-3 h-3 transition-transform duration-500 ease-out group-hover:translate-x-1 group-hover:scale-110" />
+                    </span>
+                  </Button>
+                </Link>
 
                 {/* Mobile Menu Button */}
                 <Button
@@ -182,14 +187,14 @@ export default function Header({ darkMode, setDarkMode, scrollY }: HeaderProps) 
         >
           {/* Menu Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-slate-700/50">
-            <div className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-3" onClick={closeMobileMenu}>
               <div className="w-8 h-8 bg-gradient-to-br from-violet-500 via-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Bot className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-violet-600 bg-clip-text text-transparent">
                 ResuMate
               </span>
-            </div>
+            </Link>
             <Button
               variant="ghost"
               size="sm"
@@ -246,25 +251,27 @@ export default function Header({ darkMode, setDarkMode, scrollY }: HeaderProps) 
               </Button>
 
               {/* Sign In Button */}
-              <Button
-                variant="ghost"
-                className="w-full justify-start font-medium rounded-2xl py-4 px-4 transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 dark:hover:from-slate-800/50 dark:hover:to-slate-700/50 hover:scale-[1.02] text-lg text-gray-700 dark:text-slate-300"
-                onClick={closeMobileMenu}
-              >
-                Sign In
-              </Button>
+              <Link href="/auth/signin" onClick={closeMobileMenu}>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start font-medium rounded-2xl py-4 px-4 transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 dark:hover:from-slate-800/50 dark:hover:to-slate-700/50 hover:scale-[1.02] text-lg text-gray-700 dark:text-slate-300"
+                >
+                  Sign In
+                </Button>
+              </Link>
 
               {/* CTA Button */}
-              <Button
-                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 dark:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-300 font-medium py-4 rounded-2xl text-lg group overflow-hidden text-white"
-                onClick={closeMobileMenu}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
-                <span className="relative z-10 flex items-center justify-center">
-                  Get Started
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-              </Button>
+              <Link href="/auth/register" onClick={closeMobileMenu}>
+                <Button
+                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 dark:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-300 font-medium py-4 rounded-2xl text-lg group overflow-hidden text-white"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                  <span className="relative z-10 flex items-center justify-center">
+                    Get Started
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </span>
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
