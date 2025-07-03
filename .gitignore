@@ -41,6 +41,15 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+package-lock.json
+# Optional npm cache directory
+.npm/
+# Optional yarn cache directory
+.yarn/cache/
+# Optional pnpm store directory
+.pnpm-store/
+# Optional eslint cache directory
+.eslintcache
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
