@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "argon2": "^0.44.0",
+    "cookie": "^1.0.2",
+    "jose": "^6.1.0",
+    "mongodb": "^6.20.0",
+    "pdfjs-dist": "^5.4.149",
+    "uuid": "^13.0.0"
+  }
+}

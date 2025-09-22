@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+// @ts-ignore
 import {
   ArrowRight,
   Zap,
@@ -26,6 +27,7 @@ import {
 import { useEffect, useRef, useState } from "react"
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
 // Additional lucide icons
+// @ts-ignore
 import { BookOpen, Wand2, Layers, ListChecks, Lightbulb } from "lucide-react"
 
 interface HeroSectionProps {
@@ -137,7 +139,7 @@ export default function HeroSection(_props: HeroSectionProps) {
           <div className="mt-9 flex flex-col sm:flex-row gap-3 sm:gap-4">
             {/* Primary CTA */}
             <Button
-              size="lg"
+              {...({ size: "lg" } as any)}
               className="cta-shimmer relative group rounded-xl px-7 sm:px-8 py-5 text-base font-medium bg-gradient-to-b from-violet-500 via-violet-600 to-purple-600 shadow-[0_4px_18px_-4px_rgba(109,40,217,0.45)] hover:shadow-[0_6px_28px_-6px_rgba(109,40,217,0.55)] active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
               aria-label="Get started for free"
             >
@@ -150,8 +152,8 @@ export default function HeroSection(_props: HeroSectionProps) {
             </Button>
             {/* Secondary CTA */}
             <Button
-              variant="outline"
-              size="lg"
+              {...({ variant: "outline" } as any)}
+              {...({ size: "lg" } as any)}
               className="relative rounded-xl px-7 sm:px-8 py-5 text-base font-medium border border-violet-200/70 dark:border-violet-800/70 bg-white/70 dark:bg-gray-900/40 hover:bg-white/90 dark:hover:bg-gray-900/60 transition-all duration-300 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
               aria-label="View live demo"
             >

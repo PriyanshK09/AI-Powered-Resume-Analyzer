@@ -17,8 +17,8 @@ const nextConfig = {
       },
     ],
   },
-  output: 'export',
-  trailingSlash: true,
+  // Removed static export to enable dynamic server routes (auth APIs, cookies, middleware)
+  // If you need a static marketing export later, consider a dual-build approach.
   distDir: 'out',
 }
 

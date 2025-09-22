@@ -49,6 +49,12 @@
   }
 }
 
+  /* Diff highlighting */
+  .diff-add { background-color: rgba(16,185,129,0.18); color: #065f46; padding: 0 2px; border-radius: 3px; }
+  .dark .diff-add { background-color: rgba(16,185,129,0.25); color: #6ee7b7; }
+  .diff-del { background-color: rgba(244,63,94,0.18); color: #991b1b; text-decoration: line-through; padding: 0 2px; border-radius: 3px; }
+  .dark .diff-del { background-color: rgba(244,63,94,0.25); color: #fca5a5; }
+
 @layer base {
   * {
     @apply border-border;
@@ -413,8 +419,10 @@ html {
 .theme-toggle-btn:focus-visible { @apply outline-none ring-2 ring-violet-500 ring-offset-2; }
 
 .header-shell { 
-  /* Base wrapper for the floating pill header. We animate width (max-width) instead of height now. */
-  @apply relative w-full rounded-full overflow-hidden; 
+  /* Base wrapper for the floating pill header. We animate width (max-width) instead of height now.
+     Removed overflow-hidden so account dropdown menu is not clipped. */
+  @apply relative w-full rounded-full; 
+  overflow: visible; /* allow dropdowns/popovers to escape pill bounds */
   transition: background-color .55s ease, backdrop-filter .55s ease, border-color .55s ease, box-shadow .6s ease,
               max-width .65s cubic-bezier(.4,0,.2,1), padding .45s cubic-bezier(.4,0,.2,1);
 }
@@ -432,5 +440,22 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .nav-link:before { transition: none; }
   .nav-link, .btn-soft, .theme-toggle-btn, .header-shell { transition: none; }
+}
+
+/* ===================== Print Styles ===================== */
+@media print {
+  body, html { background: #ffffff !important; }
+  :root { color-scheme: light; }
+  .print:hidden, .print\:hidden { display: none !important; }
+  /* Remove gradients/background imagery */
+  body * { box-shadow: none !important; animation: none !important; }
+  .resume-paper { font-size: 12px; line-height: 1.35; }
+  .resume-paper h2 { margin-top: 0; margin-bottom: 4px; font-size: 14px; text-transform: uppercase; letter-spacing: .05em; }
+  .resume-paper section { page-break-inside: avoid; }
+  #resume-print-root { padding-top: 0 !important; }
+  a { color: #1f2937 !important; text-decoration: none; }
+  a[href^="http"]:after { content: ""; }
+  /* Tighter spacing for bullets */
+  .resume-paper pre, .resume-paper div, .resume-paper p { font-family: "Inter", Arial, sans-serif; }
 }
 

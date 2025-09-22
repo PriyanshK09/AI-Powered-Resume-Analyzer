@@ -12,7 +12,16 @@ import PricingSection from "@/components/landing/PricingSection"
 import Footer from "@/components/landing/Footer"
 
 export default function ResuMateLanding() {
-  const [darkMode, setDarkMode] = useState(false)
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    try {
+      const ls = localStorage.getItem('resumate-theme')
+      if (ls === 'dark') return true
+      if (ls === 'light') return false
+      // fallback to prefers-color-scheme
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+    } catch { return false }
+  })
   const [scrollY, setScrollY] = useState(0)
 
   useEffect(() => {
@@ -23,9 +32,11 @@ export default function ResuMateLanding() {
 
   useEffect(() => {
     if (darkMode) {
-      document.documentElement.classList.add("dark")
+      document.documentElement.classList.add('dark')
+      try { localStorage.setItem('resumate-theme', 'dark') } catch {}
     } else {
-      document.documentElement.classList.remove("dark")
+      document.documentElement.classList.remove('dark')
+      try { localStorage.setItem('resumate-theme', 'light') } catch {}
     }
   }, [darkMode])
 
@@ -59,18 +70,16 @@ export default function ResuMateLanding() {
   ]
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "dark" : ""}`}>
-      <div className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        <Header darkMode={darkMode} setDarkMode={setDarkMode} scrollY={scrollY} />
-        <HeroSection scrollY={scrollY} />
-        <HowItWorksSection />
-        <AIPreviewSection />
-        <ResumeScoringSection />
-        <TemplatesSection />
-        <TestimonialsSection testimonials={testimonials} />
-        <PricingSection />
-        <Footer />
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <Header darkMode={darkMode} setDarkMode={setDarkMode} scrollY={scrollY} />
+      <HeroSection scrollY={scrollY} />
+      <HowItWorksSection />
+      <AIPreviewSection />
+      <ResumeScoringSection />
+      <TemplatesSection />
+      <TestimonialsSection testimonials={testimonials} />
+      <PricingSection />
+      <Footer />
     </div>
   )
 }

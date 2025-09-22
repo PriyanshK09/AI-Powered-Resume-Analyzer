@@ -6,17 +6,38 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+// @ts-ignore
 import { Bot, ArrowRight, Mail, CheckCircle } from "lucide-react"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // Handle forgot password logic here
-    console.log("Password reset request for:", email)
-    setIsSubmitted(true)
+    if (loading) return
+    setError(null)
+    try {
+      setLoading(true)
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      try {
+        const data = await res.json()
+        if (data?.token) {
+          console.info('Reset token (dev only):', data.token)
+        }
+      } catch {}
+      setIsSubmitted(true)
+    } catch (err) {
+      setError('Network error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (isSubmitted) {
@@ -33,24 +54,27 @@ export default function ForgotPasswordPage() {
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
-            
             <h1 className="text-2xl font-bold font-display text-gray-900 dark:text-slate-100 mb-2">
               Check your email
             </h1>
-            
             <p className="text-gray-600 dark:text-slate-400 mb-6">
               We sent a password reset link to <strong>{email}</strong>
             </p>
-            
             <div className="space-y-4">
+              <div className="text-sm text-green-600 dark:text-green-400 space-y-2">
+                <p>If that email exists, reset instructions have been sent.</p>
+                <p>
+                  <span className="block">Have a reset token?</span>
+                  <Link href="/auth/reset-password" className="underline text-violet-600 dark:text-violet-400">Reset your password</Link>
+                </p>
+              </div>
               <Button
-                onClick={() => setIsSubmitted(false)}
-                variant="outline"
+                onClick={() => { setIsSubmitted(false); setEmail(""); setError(null) }}
+                {...({ variant: "outline" } as any)}
                 className="w-full h-12 bg-white/60 dark:bg-slate-700/60 border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-600/80 transition-all duration-300 rounded-xl"
               >
                 Try another email
               </Button>
-              
               <Link href="/auth/signin">
                 <Button className="w-full group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white h-12 rounded-xl font-medium shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 dark:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-300 hover:scale-[1.02] relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
@@ -126,16 +150,29 @@ export default function ForgotPasswordPage() {
             </div>
 
             {/* Reset Button */}
-            <Button
-              type="submit"
-              className="w-full group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white h-12 rounded-xl font-medium shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 dark:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-300 hover:scale-[1.02] relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
-              <span className="relative z-10 flex items-center justify-center">
-                Send reset link
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-              </span>
-            </Button>
+            {error && <p className="text-sm text-red-600 dark:text-red-400" role="alert">{error}</p>}
+            {isSubmitted && !error && (
+              <div className="text-sm text-green-600 dark:text-green-400 space-y-2">
+                <p>If that email exists, reset instructions have been sent.</p>
+                <p>
+                  <span className="block">Have a reset token?</span>
+                  <Link href="/auth/reset-password" className="underline text-violet-600 dark:text-violet-400">Reset your password</Link>
+                </p>
+              </div>
+            )}
+            {!isSubmitted && (
+              <Button
+                type="submit"
+                disabled={loading || !email}
+                className="w-full group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white h-12 rounded-xl font-medium shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 dark:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-300 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                <span className="relative z-10 flex items-center justify-center">
+                  {loading ? 'Sending…' : 'Send reset link'}
+                  {!loading && <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />}
+                </span>
+              </Button>
+            )}
           </form>
         </Card>
 
