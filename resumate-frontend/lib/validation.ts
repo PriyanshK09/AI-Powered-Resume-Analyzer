@@ -33,19 +33,30 @@ export const resetSchema = z.object({
 export const resumeCreateSchema = z.object({
   title: z.string().min(3).max(120),
   content: z.string().min(10).max(100_000), // raw JSON / markdown / structured blocks (future)
-  targetRole: z.string().min(2).max(80).optional(),
-  templateId: z.string().min(1).max(64).optional(),
-  // New structured section fields (optional during transition)
-  summary: z.string().min(10).max(2_000).optional(),
-  experience: z.string().min(10).max(50_000).optional(),
-  skills: z.string().min(2).max(5_000).optional(),
-  fullName: z.string().min(2).max(120).optional(),
-  email: z.string().email().max(255).optional(),
-  phone: z.string().min(5).max(40).optional(),
-  location: z.string().min(2).max(120).optional(),
-  linkedin: z.string().url().max(255).optional(),
-  github: z.string().url().max(255).optional(),
-  portfolio: z.string().url().max(255).optional(),
+  targetRole: z.union([z.string().max(80), z.literal('')]).optional(),
+  templateId: z.union([z.string().max(64), z.literal('')]).optional(),
+  // Personal / contact details
+  fullName: z.union([z.string().max(120), z.literal('')]).optional(),
+  email: z.union([z.string().email().max(255), z.literal('')]).optional(),
+  phone: z.union([z.string().max(40), z.literal('')]).optional(),
+  location: z.union([z.string().max(120), z.literal('')]).optional(),
+  linkedin: z.union([z.string().url().max(255), z.literal('')]).optional(),
+  github: z.union([z.string().url().max(255), z.literal('')]).optional(),
+  portfolio: z.union([z.string().url().max(255), z.literal('')]).optional(),
+  website: z.union([z.string().url().max(255), z.literal('')]).optional(),
+  // Professional sections
+  summary: z.union([z.string().max(2_000), z.literal('')]).optional(),
+  experience: z.union([z.string().max(50_000), z.literal('')]).optional(),
+  projects: z.union([z.string().max(50_000), z.literal('')]).optional(),
+  education: z.union([z.string().max(10_000), z.literal('')]).optional(),
+  certifications: z.union([z.string().max(10_000), z.literal('')]).optional(),
+  skills: z.union([z.string().max(5_000), z.literal('')]).optional(),
+  achievements: z.union([z.string().max(10_000), z.literal('')]).optional(),
+  languages: z.union([z.string().max(2_000), z.literal('')]).optional(),
+  publications: z.union([z.string().max(10_000), z.literal('')]).optional(),
+  volunteerWork: z.union([z.string().max(10_000), z.literal('')]).optional(),
+  interests: z.union([z.string().max(2_000), z.literal('')]).optional(),
+  references: z.union([z.string().max(5_000), z.literal('')]).optional(),
 })
 
 export const resumeUpdateSchema = resumeCreateSchema.partial().extend({

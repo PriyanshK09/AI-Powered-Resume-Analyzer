@@ -8,9 +8,6 @@ export interface ResumeRecord {
   content: string
   targetRole?: string
   templateId?: string
-  summary?: string
-  experience?: string
-  skills?: string
   fullName?: string
   email?: string
   phone?: string
@@ -18,6 +15,19 @@ export interface ResumeRecord {
   linkedin?: string
   github?: string
   portfolio?: string
+  website?: string
+  summary?: string
+  experience?: string
+  projects?: string
+  education?: string
+  certifications?: string
+  skills?: string
+  achievements?: string
+  languages?: string
+  publications?: string
+  volunteerWork?: string
+  interests?: string
+  references?: string
   updatedAt: string
   createdAt: string
   score?: number
@@ -54,9 +64,44 @@ export function useResumes() {
 
   useEffect(() => { load() }, [load])
 
-  async function create(payload: { title: string; content: string; targetRole?: string; templateId?: string; summary?: string; experience?: string; skills?: string; fullName?: string; email?: string; phone?: string; location?: string; linkedin?: string; github?: string; portfolio?: string }) {
+  async function create(payload: { 
+    title: string; content: string; targetRole?: string; templateId?: string; 
+    fullName?: string; email?: string; phone?: string; location?: string; 
+    linkedin?: string; github?: string; portfolio?: string; website?: string;
+    summary?: string; experience?: string; projects?: string; education?: string; 
+    certifications?: string; skills?: string; achievements?: string; languages?: string;
+    publications?: string; volunteerWork?: string; interests?: string; references?: string;
+  }) {
     setCreating(true)
-    const optimistic: ResumeRecord = { _id: 'temp-' + Date.now(), title: payload.title, content: payload.content, targetRole: payload.targetRole, templateId: payload.templateId, summary: payload.summary, experience: payload.experience, skills: payload.skills, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+    const optimistic: ResumeRecord = { 
+      _id: 'temp-' + Date.now(), 
+      title: payload.title, 
+      content: payload.content, 
+      targetRole: payload.targetRole, 
+      templateId: payload.templateId, 
+      fullName: payload.fullName,
+      email: payload.email,
+      phone: payload.phone,
+      location: payload.location,
+      linkedin: payload.linkedin,
+      github: payload.github,
+      portfolio: payload.portfolio,
+      website: payload.website,
+      summary: payload.summary, 
+      experience: payload.experience, 
+      projects: payload.projects,
+      education: payload.education,
+      certifications: payload.certifications,
+      skills: payload.skills,
+      achievements: payload.achievements,
+      languages: payload.languages,
+      publications: payload.publications,
+      volunteerWork: payload.volunteerWork,
+      interests: payload.interests,
+      references: payload.references,
+      createdAt: new Date().toISOString(), 
+      updatedAt: new Date().toISOString() 
+    }
     setState(s => ({ ...s, resumes: [optimistic, ...s.resumes] }))
     try {
       const res = await fetch('/api/resumes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
@@ -74,7 +119,14 @@ export function useResumes() {
     }
   }
 
-  async function update(id: string, patch: Partial<{ title: string; content: string; targetRole?: string; templateId?: string; summary?: string; experience?: string; skills?: string; fullName?: string; email?: string; phone?: string; location?: string; linkedin?: string; github?: string; portfolio?: string }>) {
+  async function update(id: string, patch: Partial<{ 
+    title: string; content: string; targetRole?: string; templateId?: string; 
+    fullName?: string; email?: string; phone?: string; location?: string; 
+    linkedin?: string; github?: string; portfolio?: string; website?: string;
+    summary?: string; experience?: string; projects?: string; education?: string; 
+    certifications?: string; skills?: string; achievements?: string; languages?: string;
+    publications?: string; volunteerWork?: string; interests?: string; references?: string;
+  }>) {
     const prev = state.resumes.find(r => r._id === id)
     if (!prev) return
     const merged = { ...prev, ...patch, updatedAt: new Date().toISOString() }

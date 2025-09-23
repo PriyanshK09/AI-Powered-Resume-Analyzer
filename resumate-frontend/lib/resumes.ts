@@ -7,11 +7,7 @@ export interface ResumeDoc {
   content: string // placeholder for structured blocks / JSON in future
   targetRole?: string
   templateId?: string
-  // Structured sections (optional during migration)
-  summary?: string
-  experience?: string
-  skills?: string
-  // Personal / contact details (optional)
+  // Personal / contact details
   fullName?: string
   email?: string
   phone?: string
@@ -19,6 +15,20 @@ export interface ResumeDoc {
   linkedin?: string
   github?: string
   portfolio?: string
+  website?: string
+  // Professional sections
+  summary?: string
+  experience?: string
+  projects?: string
+  education?: string
+  certifications?: string
+  skills?: string
+  achievements?: string
+  languages?: string
+  publications?: string
+  volunteerWork?: string
+  interests?: string
+  references?: string
   createdAt: Date
   updatedAt: Date
   score?: number // cached AI score
@@ -40,7 +50,14 @@ export async function resumesCollection() {
   return col
 }
 
-export async function createResume(userId: string, data: { title: string; content: string; targetRole?: string; templateId?: string; summary?: string; experience?: string; skills?: string; fullName?: string; email?: string; phone?: string; location?: string; linkedin?: string; github?: string; portfolio?: string }) {
+export async function createResume(userId: string, data: { 
+  title: string; content: string; targetRole?: string; templateId?: string; 
+  fullName?: string; email?: string; phone?: string; location?: string; 
+  linkedin?: string; github?: string; portfolio?: string; website?: string;
+  summary?: string; experience?: string; projects?: string; education?: string; 
+  certifications?: string; skills?: string; achievements?: string; languages?: string;
+  publications?: string; volunteerWork?: string; interests?: string; references?: string;
+}) {
   const col = await resumesCollection()
   const now = new Date()
   const doc: ResumeDoc = {
@@ -50,9 +67,6 @@ export async function createResume(userId: string, data: { title: string; conten
     content: data.content,
     targetRole: data.targetRole,
     templateId: data.templateId,
-    summary: data.summary,
-    experience: data.experience,
-    skills: data.skills,
     fullName: data.fullName,
     email: data.email,
     phone: data.phone,
@@ -60,6 +74,19 @@ export async function createResume(userId: string, data: { title: string; conten
     linkedin: data.linkedin,
     github: data.github,
     portfolio: data.portfolio,
+    website: data.website,
+    summary: data.summary,
+    experience: data.experience,
+    projects: data.projects,
+    education: data.education,
+    certifications: data.certifications,
+    skills: data.skills,
+    achievements: data.achievements,
+    languages: data.languages,
+    publications: data.publications,
+    volunteerWork: data.volunteerWork,
+    interests: data.interests,
+    references: data.references,
     createdAt: now,
     updatedAt: now,
     score: undefined,
@@ -79,7 +106,10 @@ export async function getResume(userId: string, id: string) {
   return col.findOne({ _id: id, userId })
 }
 
-export async function updateResume(userId: string, id: string, patch: Partial<Pick<ResumeDoc, 'title' | 'content' | 'targetRole' | 'templateId' | 'summary' | 'experience' | 'skills' | 'fullName' | 'email' | 'phone' | 'location' | 'linkedin' | 'github' | 'portfolio'>>) {
+export async function updateResume(userId: string, id: string, patch: Partial<Pick<ResumeDoc, 
+  'title' | 'content' | 'targetRole' | 'templateId' | 'fullName' | 'email' | 'phone' | 'location' | 
+  'linkedin' | 'github' | 'portfolio' | 'website' | 'summary' | 'experience' | 'projects' | 'education' | 
+  'certifications' | 'skills' | 'achievements' | 'languages' | 'publications' | 'volunteerWork' | 'interests' | 'references'>>) {
   const col = await resumesCollection()
   const res = await col.updateOne(
     { _id: id, userId },

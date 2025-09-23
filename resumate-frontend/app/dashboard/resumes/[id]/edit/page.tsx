@@ -57,9 +57,10 @@ export default function EditResumePage() {
   })()
   const [form, setForm] = useState({
     title: record?.title || '', targetRole: record?.targetRole || '', templateId: record?.templateId || '',
-    summary: legacy.summary, experience: legacy.experience, skills: legacy.skills,
+    summary: legacy.summary, experience: legacy.experience, projects: record?.projects || '', education: record?.education || '', certifications: record?.certifications || '', skills: legacy.skills,
+    achievements: record?.achievements || '', languages: record?.languages || '', publications: record?.publications || '', volunteerWork: record?.volunteerWork || '', interests: record?.interests || '', references: record?.references || '',
     fullName: record?.fullName || '', email: record?.email || '', phone: record?.phone || '', location: record?.location || '',
-    linkedin: record?.linkedin || '', github: record?.github || '', portfolio: record?.portfolio || ''
+    linkedin: record?.linkedin || '', github: record?.github || '', portfolio: record?.portfolio || '', website: record?.website || ''
   })
   const [undoStack, setUndoStack] = useState<typeof form[]>([])
   // Single apply flow (always replace) for parity with New page
@@ -77,7 +78,7 @@ export default function EditResumePage() {
         skills: parts[parts.length-1] || ''
       }
     })()
-    setForm({ title: record.title, targetRole: record.targetRole||'', templateId: record.templateId || '', summary: legacy.summary, experience: legacy.experience, skills: legacy.skills, fullName: record.fullName||'', email: record.email||'', phone: record.phone||'', location: record.location||'', linkedin: record.linkedin||'', github: record.github||'', portfolio: record.portfolio||'' })
+  setForm({ title: record.title, targetRole: record.targetRole||'', templateId: record.templateId || '', summary: legacy.summary, experience: legacy.experience, projects: record.projects||'', education: record.education||'', certifications: record.certifications||'', skills: legacy.skills, achievements: record.achievements||'', languages: record.languages||'', publications: record.publications||'', volunteerWork: record.volunteerWork||'', interests: record.interests||'', references: record.references||'', fullName: record.fullName||'', email: record.email||'', phone: record.phone||'', location: record.location||'', linkedin: record.linkedin||'', github: record.github||'', portfolio: record.portfolio||'', website: record.website||'' })
   } }, [record])
   useEffect(() => { fetch('/api/templates').then(r=>r.json()).then(d=>{ if(d.success) setTemplates(d.templates) }).catch(()=>{}) }, [])
 
@@ -128,9 +129,9 @@ export default function EditResumePage() {
     toast({ title: 'Bullets normalized', description: `All experience lines now use '${prefix}'.` })
   }
 
-  const [activeTab, setActiveTab] = useState<'summary'|'experience'|'skills'>('summary')
+  const [activeTab, setActiveTab] = useState<'summary'|'experience'|'projects'|'education'|'certifications'|'skills'|'achievements'|'languages'|'publications'|'volunteerWork'|'interests'|'references'>('summary')
 
-  function appendHint(section: 'summary'|'experience'|'skills') {
+  function appendHint(section: 'summary'|'experience'|'projects'|'skills') {
     const hints = generateHints(section, form.targetRole)
     if (!hints.length) return
     setForm(f => {
@@ -149,7 +150,32 @@ export default function EditResumePage() {
     try {
       setSaving(true)
     const combinedContent = [form.summary, form.experience, form.skills].filter(Boolean).join('\n\n') || 'Draft content'
-  await update(id, { title: form.title, targetRole: form.targetRole, content: combinedContent, templateId: form.templateId || undefined, summary: form.summary || undefined, experience: form.experience || undefined, skills: form.skills || undefined, fullName: form.fullName || undefined, email: form.email || undefined, phone: form.phone || undefined, location: form.location || undefined, linkedin: form.linkedin || undefined, github: form.github || undefined, portfolio: form.portfolio || undefined })
+    await update(id, { 
+      title: form.title, 
+      targetRole: form.targetRole, 
+      content: combinedContent, 
+      templateId: form.templateId || '', 
+      summary: form.summary || '', 
+      experience: form.experience || '', 
+      projects: form.projects || '', 
+      education: form.education || '', 
+      certifications: form.certifications || '', 
+      skills: form.skills || '', 
+      achievements: form.achievements || '', 
+      languages: form.languages || '', 
+      publications: form.publications || '', 
+      volunteerWork: form.volunteerWork || '', 
+      interests: form.interests || '', 
+      references: form.references || '', 
+      fullName: form.fullName || '', 
+      email: form.email || '', 
+      phone: form.phone || '', 
+      location: form.location || '', 
+      linkedin: form.linkedin || '', 
+      github: form.github || '', 
+      portfolio: form.portfolio || '', 
+      website: form.website || '' 
+    })
       router.push('/dashboard')
     } catch (e:any) {
       setError(e.message)
@@ -159,11 +185,12 @@ export default function EditResumePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="relative z-30"><Header darkMode={darkMode} setDarkMode={setDarkMode} scrollY={scrollY} /></div>
-      <main className="pt-32 pb-20 max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-display font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-6">Edit Resume</h1>
+      <main className="pt-24 pb-20 max-w-7xl mx-auto px-4 lg:px-8">
+        <div className="flex items-center justify-between mb-8"><h1 className="text-3xl font-display font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">Edit Resume</h1></div>
   {!record && <Card className="p-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 rounded-2xl"><EditorSkeleton /></Card>}
         {record && (
-          <form onSubmit={handleSave} className="space-y-10">
+          <form onSubmit={handleSave} className="flex flex-col gap-8 lg:flex-row lg:items-start">
+            <div className="flex-1 space-y-8 min-w-0">
             <Card className="p-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 rounded-2xl space-y-8">
               <div className="space-y-2">
                 <h2 className="text-sm font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300">Basic Info</h2>
@@ -206,9 +233,13 @@ export default function EditResumePage() {
                     <label className="text-xs font-medium text-gray-600 dark:text-slate-300">GitHub</label>
                     <input value={form.github} onChange={e=>setForm(f=>({...f,github:e.target.value}))} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
                   </div>
-                  <div className="space-y-1 md:col-span-3">
-                    <label className="text-xs font-medium text-gray-600 dark:text-slate-300">Portfolio / Website</label>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-gray-600 dark:text-slate-300">Portfolio</label>
                     <input value={form.portfolio} onChange={e=>setForm(f=>({...f,portfolio:e.target.value}))} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
+                  </div>
+                  <div className="space-y-1 md:col-span-2">
+                    <label className="text-xs font-medium text-gray-600 dark:text-slate-300">Website</label>
+                    <input value={form.website} onChange={e=>setForm(f=>({...f,website:e.target.value}))} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
                   </div>
                 </div>
               </div>
@@ -269,10 +300,19 @@ export default function EditResumePage() {
                 <p className="text-xs text-gray-500 dark:text-slate-500">Refine sections individually for better future AI optimization.</p>
               </div>
               <Tabs value={activeTab} onValueChange={(v: any)=>setActiveTab(v as any)} className="w-full">
-                <TabsList className="grid grid-cols-3 w-full mb-4 bg-white/50 dark:bg-slate-700/50 border border-white/40 dark:border-slate-600/50 rounded-xl overflow-hidden">
-                  <TabsTrigger value="summary" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white text-xs">Summary</TabsTrigger>
-                  <TabsTrigger value="experience" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white text-xs">Experience</TabsTrigger>
-                  <TabsTrigger value="skills" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white text-xs">Skills</TabsTrigger>
+                <TabsList aria-label="Resume sections" className="mb-4 relative flex flex-wrap h-auto gap-1 bg-white/50 dark:bg-slate-700/40 border border-white/40 dark:border-slate-600/40 rounded-xl p-1">
+                  <TabsTrigger value="summary" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Summary</TabsTrigger>
+                  <TabsTrigger value="experience" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Experience</TabsTrigger>
+                  <TabsTrigger value="projects" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Projects</TabsTrigger>
+                  <TabsTrigger value="education" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Education</TabsTrigger>
+                  <TabsTrigger value="skills" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Skills</TabsTrigger>
+                  <TabsTrigger value="certifications" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Certs</TabsTrigger>
+                  <TabsTrigger value="achievements" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Achievements</TabsTrigger>
+                  <TabsTrigger value="languages" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Languages</TabsTrigger>
+                  <TabsTrigger value="publications" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Publications</TabsTrigger>
+                  <TabsTrigger value="volunteerWork" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Volunteer</TabsTrigger>
+                  <TabsTrigger value="interests" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">Interests</TabsTrigger>
+                  <TabsTrigger value="references" className="text-center data-[state=active]:bg-violet-600 data-[state=active]:text-white text-[11px] leading-tight py-2 px-2 rounded-lg bg-white/70 dark:bg-slate-800/50 border border-white/40 dark:border-slate-600/50">References</TabsTrigger>
                 </TabsList>
                 <TabsContent value="summary" className="space-y-3">
                   <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500">
@@ -295,6 +335,24 @@ export default function EditResumePage() {
                   </div>
                   <textarea value={form.experience} onChange={e=>setForm(f=>({...f,experience:e.target.value}))} rows={8} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none font-mono" />
                   <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.experience.length} chars</p>
+                </TabsContent>
+                <TabsContent value="projects" className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500">
+                    <p>Notable projects.</p>
+                    <button type="button" onClick={()=>appendHint('projects')} className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] bg-violet-600/10 text-violet-600 dark:text-violet-400 hover:bg-violet-600/20 transition"><Lightbulb className="w-3.5 h-3.5" /> Hint</button>
+                  </div>
+                  <textarea value={form.projects} onChange={e=>setForm(f=>({...f,projects:e.target.value}))} rows={6} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none font-mono" />
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.projects.length} chars</p>
+                </TabsContent>
+                <TabsContent value="education" className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500"><p>Education background.</p></div>
+                  <textarea value={form.education} onChange={e=>setForm(f=>({...f,education:e.target.value}))} rows={5} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.education.length} chars</p>
+                </TabsContent>
+                <TabsContent value="certifications" className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500"><p>Certifications.</p></div>
+                  <textarea value={form.certifications} onChange={e=>setForm(f=>({...f,certifications:e.target.value}))} rows={5} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.certifications.length} chars</p>
                 </TabsContent>
                 <TabsContent value="skills" className="space-y-3">
                   <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500">
@@ -323,6 +381,36 @@ export default function EditResumePage() {
                   <textarea value={form.skills} onChange={e=>setForm(f=>({...f,skills:e.target.value}))} rows={5} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
                   <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.skills.length} chars</p>
                 </TabsContent>
+                <TabsContent value="achievements" className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500"><p>Achievements.</p></div>
+                  <textarea value={form.achievements} onChange={e=>setForm(f=>({...f,achievements:e.target.value}))} rows={5} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.achievements.length} chars</p>
+                </TabsContent>
+                <TabsContent value="languages" className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500"><p>Languages.</p></div>
+                  <textarea value={form.languages} onChange={e=>setForm(f=>({...f,languages:e.target.value}))} rows={3} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.languages.length} chars</p>
+                </TabsContent>
+                <TabsContent value="publications" className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500"><p>Publications.</p></div>
+                  <textarea value={form.publications} onChange={e=>setForm(f=>({...f,publications:e.target.value}))} rows={5} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.publications.length} chars</p>
+                </TabsContent>
+                <TabsContent value="volunteerWork" className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500"><p>Volunteer work.</p></div>
+                  <textarea value={form.volunteerWork} onChange={e=>setForm(f=>({...f,volunteerWork:e.target.value}))} rows={5} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.volunteerWork.length} chars</p>
+                </TabsContent>
+                <TabsContent value="interests" className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500"><p>Interests.</p></div>
+                  <textarea value={form.interests} onChange={e=>setForm(f=>({...f,interests:e.target.value}))} rows={3} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.interests.length} chars</p>
+                </TabsContent>
+                <TabsContent value="references" className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-500"><p>References.</p></div>
+                  <textarea value={form.references} onChange={e=>setForm(f=>({...f,references:e.target.value}))} rows={4} className="w-full rounded-lg border border-gray-300/60 dark:border-slate-600/60 bg-white/70 dark:bg-slate-700/50 px-3 py-2 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 outline-none" />
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500 text-right">{form.references.length} chars</p>
+                </TabsContent>
               </Tabs>
               <div className="grid md:grid-cols-3 gap-4 pt-4">
                 <div className={`col-span-3 md:col-span-1 p-4 rounded-xl bg-gradient-to-br ${activeGradient} text-white text-xs space-y-2 shadow-inner border border-white/20`}>
@@ -344,8 +432,29 @@ export default function EditResumePage() {
             {error && <p className="text-sm text-red-500" role="alert">{error}</p>}
             <div className="flex gap-3">
               <Button type="submit" disabled={saving} className="bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700 shadow-md shadow-violet-500/20 px-8">{saving ? 'Saving…' : 'Save Changes'}</Button>
-              <Button type="button" {...({ variant: "outline" } as any)} onClick={()=>router.back()} className="px-8">Cancel</Button>
+              <Button type="button" {...({ variant: 'outline' } as any)} onClick={()=>router.back()} className="px-8">Cancel</Button>
             </div>
+            </div>
+            <aside className="w-72 hidden lg:flex flex-col gap-6 pt-14 sticky top-20 self-start max-w-full">
+              <Card className={`p-5 bg-gradient-to-br ${activeGradient} text-white rounded-2xl border border-white/30 space-y-3 shadow-inner`}>
+                <p className="text-sm font-semibold tracking-wide">Preview</p>
+                <div className="h-px bg-white/20" />
+                <div className="space-y-4 max-h-[480px] overflow-y-auto pr-1 custom-scrollbar text-[11px] leading-relaxed">
+                  {(['summary','experience','projects','education','skills'] as const).map(key => {
+                    const val = (form as any)[key]
+                    if (!val) return null
+                    return (
+                      <div key={key} className="space-y-1">
+                        <p className="uppercase tracking-wide text-[10px] font-semibold text-white/70">{key}</p>
+                        <p className="whitespace-pre-wrap opacity-90 font-medium">{val.slice(0, 1200)}</p>
+                      </div>
+                    )
+                  })}
+                  {!form.summary && !form.experience && !form.projects && !form.skills && <p className="text-white/60">Start editing or add hints to see a preview.</p>}
+                </div>
+                <p className="text-[10px] text-white/50 text-right">Chars: {(form.summary+form.experience+form.projects+form.skills).length}</p>
+              </Card>
+            </aside>
           </form>
         )}
       </main>

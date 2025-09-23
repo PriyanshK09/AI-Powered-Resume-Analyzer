@@ -25,7 +25,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const parsed = resumeUpdateSchema.safeParse({ ...body, id })
     if (!parsed.success) return NextResponse.json({ success: false, message: parsed.error.issues[0].message }, { status: 400 })
   // Whitelist properties (exclude id) to avoid unintended updates
-  const { id: _discard, title, content, targetRole, templateId, summary, experience, skills, fullName, email, phone, location, linkedin, github, portfolio } = parsed.data as any
+  const { 
+    id: _discard, title, content, targetRole, templateId, summary, experience, skills, 
+    fullName, email, phone, location, linkedin, github, portfolio, website,
+    projects, education, certifications, achievements, languages, publications, 
+    volunteerWork, interests, references 
+  } = parsed.data as any
   const patch: any = {}
   if (title !== undefined) patch.title = title
   if (content !== undefined) patch.content = content
@@ -41,6 +46,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (linkedin !== undefined) patch.linkedin = linkedin
   if (github !== undefined) patch.github = github
   if (portfolio !== undefined) patch.portfolio = portfolio
+  if (website !== undefined) patch.website = website
+  if (projects !== undefined) patch.projects = projects
+  if (education !== undefined) patch.education = education
+  if (certifications !== undefined) patch.certifications = certifications
+  if (achievements !== undefined) patch.achievements = achievements
+  if (languages !== undefined) patch.languages = languages
+  if (publications !== undefined) patch.publications = publications
+  if (volunteerWork !== undefined) patch.volunteerWork = volunteerWork
+  if (interests !== undefined) patch.interests = interests
+  if (references !== undefined) patch.references = references
   const updated = await updateResume(session.uid, id, patch)
     if (!updated) return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 })
     return NextResponse.json({ success: true, resume: updated })

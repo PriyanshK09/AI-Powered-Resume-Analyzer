@@ -77,7 +77,61 @@ export default function PreviewResumePage() {
               <p className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.skills}</p>
             </section>
           )}
-          {!record.summary && !record.experience && !record.skills && (
+          {record.projects && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">Projects</h2>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.projects}</div>
+            </section>
+          )}
+          {record.education && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">Education</h2>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.education}</div>
+            </section>
+          )}
+          {record.certifications && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">Certifications</h2>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.certifications}</div>
+            </section>
+          )}
+          {record.achievements && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">Achievements</h2>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.achievements}</div>
+            </section>
+          )}
+          {record.languages && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">Languages</h2>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.languages}</div>
+            </section>
+          )}
+          {record.publications && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">Publications</h2>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.publications}</div>
+            </section>
+          )}
+          {record.volunteerWork && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">Volunteer Work</h2>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.volunteerWork}</div>
+            </section>
+          )}
+          {record.interests && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">Interests</h2>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.interests}</div>
+            </section>
+          )}
+          {record.references && (
+            <section className="mb-6">
+              <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">References</h2>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.references}</div>
+            </section>
+          )}
+          {!record.summary && !record.experience && !record.skills && !record.projects && !record.education && !record.certifications && !record.achievements && !record.languages && !record.publications && !record.volunteerWork && !record.interests && !record.references && (
             <div className="text-sm whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{combined}</div>
           )}
         </div>

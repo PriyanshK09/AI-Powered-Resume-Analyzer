@@ -24,6 +24,7 @@
 - 🔄 **Theme Switching** - Seamless dark/light mode toggle
 - 📊 **Resume Scoring Preview** - Visual score display with progress indicators
 - 📋 **Template Showcase** - ATS-friendly template previews
+- 🪄 **AI Draft Generation (Gemini)** - "Write with AI" questionnaire generating structured resume draft sections
 - 💬 **Testimonials Section** - User success stories and feedback
 - 💰 **Pricing Plans** - Clear pricing structure with feature comparison
 
@@ -230,9 +231,49 @@ NEXT_PUBLIC_APP_NAME=ResuMate
 # Database (When ready)
 # DATABASE_URL=
 
-# AI Services (When ready)
+# AI Services
+# Provide at least one key below to enable AI features.
+GEMINI_API_KEY=your_gemini_api_key_here
 # OPENAI_API_KEY=
 # ANTHROPIC_API_KEY=
+
+```
+
+---
+
+## 🤖 AI Resume Draft Feature
+
+The Create Resume page includes a **Write with AI** button that opens a dialog asking for:
+
+- Target role, years of experience, seniority, industry
+- Top skills & core tech stack
+- Key achievements (bullet style)
+- Education summary & certifications
+- Languages, volunteering, interests
+- Tone preference (impactful / concise / technical / executive)
+
+When submitted, it calls `POST /api/ai/generate-resume` (Gemini) and auto-populates:
+`summary, experience, projects, education, certifications, skills, achievements, languages, volunteerWork, interests, references`.
+
+### Enable
+1. Add `GEMINI_API_KEY` to `.env.local`.
+2. Restart `npm run dev`.
+3. Open the New Resume screen and click **Write with AI**.
+
+### Notes
+- Output is a starting draft—always review for accuracy & confidentiality.
+- If JSON parsing fails, a fallback heuristic extracts section text.
+- Empty questionnaire fields simply produce empty section strings.
+
+### Troubleshooting
+| Issue | Resolution |
+|-------|------------|
+| Missing key error | Ensure `GEMINI_API_KEY` exists and server restarted |
+| 502 Gemini API error | Wait and retry (rate limit / transient) |
+| Sections empty | Provide more context (achievements, stack) |
+| Odd formatting | Edit directly or regenerate with refined inputs |
+
+---
 ```
 
 ---
