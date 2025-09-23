@@ -86,7 +86,14 @@ export default function PreviewResumePage() {
           {record.education && (
             <section className="mb-6">
               <h2 className="text-lg font-semibold text-violet-700 dark:text-violet-300 mb-2 print:text-gray-800">Education</h2>
-              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">{record.education}</div>
+              <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-slate-300 print:text-gray-800">
+                {typeof record.education === 'string' ? record.education : 
+                 typeof record.education === 'object' && record.education !== null ? 
+                   ((record.education as any).degree && (record.education as any).school ? 
+                     `${(record.education as any).degree} | ${(record.education as any).school}${(record.education as any).year ? ' | ' + (record.education as any).year : ''}` :
+                     Object.values(record.education).filter(Boolean).join(' ')) :
+                 String(record.education || '')}
+              </div>
             </section>
           )}
           {record.certifications && (

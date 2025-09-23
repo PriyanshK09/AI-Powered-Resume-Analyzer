@@ -35,16 +35,27 @@ export async function POST(req: NextRequest) {
 
     const structured = await generateStructuredFromRaw(rawText)
     if (!structured) return NextResponse.json({ success: false, message: 'Parsing failed' }, { status: 500 })
-    // Insert draft resume
+    
+    // Insert draft resume with all parsed fields
     const col = await resumesCollection()
     const now = new Date()
     const doc = {
       _id: crypto.randomUUID(),
       userId: session.uid,
       title: file.name.replace(/\.(pdf|tex)$/i,'') || 'Imported Resume',
-      summary: structured.summary,
-      experience: structured.experience,
-      skills: structured.skills,
+      content: rawText, // Store original content
+      summary: structured.summary || '',
+      experience: structured.experience || '',
+      projects: structured.projects || '',
+      education: structured.education || '',
+      certifications: structured.certifications || '',
+      skills: structured.skills || '',
+      achievements: structured.achievements || '',
+      languages: structured.languages || '',
+      publications: structured.publications || '',
+      volunteerWork: structured.volunteerWork || '',
+      interests: structured.interests || '',
+      references: structured.references || '',
       createdAt: now,
       updatedAt: now,
       draft: true

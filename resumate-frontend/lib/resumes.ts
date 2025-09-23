@@ -426,40 +426,126 @@ export async function applySelectedImprovements(userId: string, id: string, sect
 
 // Parse raw imported text (from PDF or LaTeX) into structured fields
 export async function generateStructuredFromRaw(raw: string) {
-  const cleaned = raw.replace(/\t/g,' ').replace(/\r/g,'')
-  // Heuristic splits
-  const lines = cleaned.split(/\n+/).map(l=>l.trim()).filter(Boolean)
-  let summaryCandidates: string[] = []
-  const experienceLines: string[] = []
-  const skillsCandidates: string[] = []
-  let section: string | null = null
-  for (const line of lines) {
-    const lower = line.toLowerCase()
-    if (/^experience\b|^work experience\b/.test(lower)) { section = 'experience'; continue }
-    if (/^skills\b|^technical skills\b|^technologies\b/.test(lower)) { section = 'skills'; continue }
-    if (/^summary\b|^profile\b|^about\b/.test(lower)) { section = 'summary'; continue }
-    if (!section && summaryCandidates.length < 4) summaryCandidates.push(line)
-    else if (section === 'summary') summaryCandidates.push(line)
-    else if (section === 'experience') experienceLines.push(line)
-    else if (section === 'skills') skillsCandidates.push(line)
+  const cleaned = raw.replace(/\t/g, ' ').replace(/\r/g, '')
+  
+  // Initialize sections storage
+  const sections: {[key: string]: string[]} = {
+    summary: [],
+    experience: [],
+    projects: [],
+    education: [],
+    certifications: [],
+    skills: [],
+    achievements: [],
+    languages: [],
+    publications: [],
+    volunteerWork: [],
+    interests: [],
+    references: []
   }
-  const summary = summaryCandidates.join(' ').slice(0, 800)
-  let experience = experienceLines
-    .map(l => l.startsWith('-') || /^[•*]/.test(l) ? l.replace(/^[•*]\s?/, '- ') : (/^[A-Z].+\d{4}/.test(l) ? `\n${l}\n` : l))
-    .join('\n')
-  // Normalize bullets
-  experience = experience.split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=> l.startsWith('- ') ? l : `- ${l}`).join('\n')
-  let skills = skillsCandidates.join(', ') || ''
-  // Collapse multiple delimiters
-  skills = skills.replace(/[,;]\s+/g, ', ').replace(/\s{2,}/g,' ').trim()
-
+  
+  // Split into lines and clean
+  const lines = cleaned.split(/\n/).map(l => l.trim()).filter(Boolean)
+  let currentSection: string | null = null
+  
+  // Section detection patterns
+  const sectionPatterns = {
+    summary: /^(summary|profile|about|objective|career objective|professional summary)\b/i,
+    experience: /^(experience|work experience|professional experience|employment|career history)\b/i,
+    projects: /^(projects|personal projects|key projects|notable projects)\b/i,
+    education: /^(education|academic background|qualifications|degrees)\b/i,
+    certifications: /^(certifications|certificates|professional certifications|credentials)\b/i,
+    skills: /^(skills|technical skills|technologies|core competencies|expertise)\b/i,
+    achievements: /^(achievements|accomplishments|awards|honors|recognition)\b/i,
+    languages: /^(languages|language proficiency|spoken languages)\b/i,
+    publications: /^(publications|papers|research|articles)\b/i,
+    volunteerWork: /^(volunteer|volunteering|community service|volunteer work)\b/i,
+    interests: /^(interests|hobbies|personal interests|activities)\b/i,
+    references: /^(references|referees)\b/i
+  }
+  
+  // Parse lines into sections
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const lower = line.toLowerCase()
+    
+    // Check if this line is a section header
+    let foundSection = null
+    for (const [sectionName, pattern] of Object.entries(sectionPatterns)) {
+      if (pattern.test(lower)) {
+        foundSection = sectionName
+        break
+      }
+    }
+    
+    if (foundSection) {
+      currentSection = foundSection
+      continue
+    }
+    
+    // If no section yet, treat as summary
+    if (!currentSection) {
+      currentSection = 'summary'
+    }
+    
+    // Add line to current section
+    if (sections[currentSection]) {
+      sections[currentSection].push(line)
+    }
+  }
+  
+  // Process each section
+  const processSection = (sectionLines: string[], preserveBullets = false) => {
+    if (sectionLines.length === 0) return ''
+    
+    if (preserveBullets) {
+      // For experience, projects, achievements - preserve bullet structure
+      return sectionLines.map(line => {
+        const trimmed = line.trim()
+        if (trimmed.match(/^[•·‣⁃▪▫‣※]/)) {
+          return `- ${trimmed.replace(/^[•·‣⁃▪▫‣※]\s*/, '')}`
+        } else if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
+          return `- ${trimmed.replace(/^[-*]\s*/, '')}`
+        } else if (trimmed.match(/^\d+\./)) {
+          return `- ${trimmed.replace(/^\d+\.\s*/, '')}`
+        } else if (trimmed.length > 0 && !trimmed.match(/^[A-Z][^.]*\d{4}/)) {
+          // Don't bullet-ize job titles/dates
+          return `- ${trimmed}`
+        }
+        return trimmed
+      }).join('\n')
+    } else {
+      // For other sections, join as sentences or comma-separated
+      return sectionLines.join(' ').replace(/\s+/g, ' ').trim()
+    }
+  }
+  
+  // Use AI for better parsing if available
   let aiRefined = false
   try {
     const apiKey = process.env.GEMINI_API_KEY
     if (apiKey) {
-      const prompt = `Convert the following extracted resume text into structured JSON {summary, experience, skills}. experience must be bullet lines starting with '- '. skills should be a deduplicated comma separated list. Keep summary <= 4 sentences. Return ONLY JSON.\nRAW:\n${raw.slice(0,12000)}`
+      const prompt = `Parse this resume text into structured JSON with ALL available sections. Use these exact field names: summary, experience, projects, education, certifications, skills, achievements, languages, publications, volunteerWork, interests, references.
+
+Rules:
+- ALL fields must be strings, never objects or arrays
+- experience, projects, achievements should be bullet points starting with "- "
+- skills should be comma-separated list
+- education should be formatted as "Degree | School | Year" on separate lines for multiple entries
+- summary should be 2-4 sentences
+- Return empty string for missing sections
+- Return ONLY valid JSON with string values
+
+Resume text:
+${raw.slice(0, 15000)}`
+
       const body = { contents: [{ parts: [{ text: prompt }] }] }
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(body) 
+      })
+      
       if (resp.ok) {
         const data = await resp.json()
         const text: string = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
@@ -467,17 +553,78 @@ export async function generateStructuredFromRaw(raw: string) {
         if (jsonMatch) {
           try {
             const parsed = JSON.parse(jsonMatch[0])
-            if (parsed.summary) summaryCandidates.splice(0, summaryCandidates.length, String(parsed.summary))
-            if (parsed.experience) experience = String(parsed.experience)
-            if (parsed.skills) skills = Array.isArray(parsed.skills) ? parsed.skills.join(', ') : String(parsed.skills)
+            // Override with AI results if available - ensure all values are strings
+            const result: any = {}
+            Object.keys(sections).forEach(key => {
+              const aiValue = parsed[key]
+              if (typeof aiValue === 'string') {
+                result[key] = aiValue
+              } else if (Array.isArray(aiValue)) {
+                // Convert array to string with bullet points
+                result[key] = aiValue.map(item => {
+                  if (typeof item === 'string') {
+                    return item
+                  } else if (typeof item === 'object' && item !== null) {
+                    // Handle objects in arrays - especially education entries
+                    if (key === 'education' && item.degree && item.school) {
+                      const parts = []
+                      if (item.degree) parts.push(item.degree)
+                      if (item.school) parts.push(item.school)
+                      if (item.year) parts.push(item.year)
+                      return parts.join(' | ')
+                    } else {
+                      return Object.values(item).filter(Boolean).join(' ')
+                    }
+                  } else {
+                    return String(item)
+                  }
+                }).filter(Boolean).join('\n')
+              } else if (typeof aiValue === 'object' && aiValue !== null) {
+                // Convert object to string - handle specific structures
+                if (key === 'education' && aiValue.degree && aiValue.school) {
+                  // Handle education object with degree/school/year structure
+                  const parts = []
+                  if (aiValue.degree) parts.push(aiValue.degree)
+                  if (aiValue.school) parts.push(aiValue.school)
+                  if (aiValue.year) parts.push(aiValue.year)
+                  result[key] = parts.join(' | ')
+                } else {
+                  // Generic object conversion
+                  result[key] = Object.values(aiValue).filter(Boolean).join(' ')
+                }
+              } else {
+                // Fallback to heuristic parsing
+                result[key] = processSection(sections[key], ['experience', 'projects', 'achievements'].includes(key))
+              }
+            })
             aiRefined = true
-          } catch {}
+            return { ...result, ai: aiRefined }
+          } catch (parseError) {
+            console.error('AI JSON parse error:', parseError)
+          }
         }
       }
     }
   } catch (e) {
     console.error('AI structuring error', e)
   }
-  const finalSummary = (aiRefined ? summaryCandidates.join(' ') : summary).trim()
-  return { summary: finalSummary, experience, skills, ai: aiRefined }
+  
+  // Fallback to heuristic parsing
+  const result = {
+    summary: processSection(sections.summary),
+    experience: processSection(sections.experience, true),
+    projects: processSection(sections.projects, true),
+    education: processSection(sections.education),
+    certifications: processSection(sections.certifications, true),
+    skills: processSection(sections.skills).replace(/[,;]\s+/g, ', '),
+    achievements: processSection(sections.achievements, true),
+    languages: processSection(sections.languages),
+    publications: processSection(sections.publications, true),
+    volunteerWork: processSection(sections.volunteerWork, true),
+    interests: processSection(sections.interests),
+    references: processSection(sections.references),
+    ai: aiRefined
+  }
+  
+  return result
 }

@@ -68,6 +68,24 @@ export default function EditResumePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Helper function to safely convert values to strings
+  const safeStringify = (value: any): string => {
+    if (typeof value === 'string') return value
+    if (value === null || value === undefined) return ''
+    if (typeof value === 'object' && value !== null) {
+      // Handle education object specifically
+      if (value.degree && value.school) {
+        const parts = []
+        if (value.degree) parts.push(value.degree)
+        if (value.school) parts.push(value.school)
+        if (value.year) parts.push(value.year)
+        return parts.join(' | ')
+      }
+      return Object.values(value).filter(Boolean).join(' ')
+    }
+    return String(value)
+  }
+
   useEffect(() => { if (record) {
     const legacy = (() => {
       if (record.summary || record.experience || record.skills) return { summary: record.summary||'', experience: record.experience||'', skills: record.skills||'' }
@@ -78,7 +96,7 @@ export default function EditResumePage() {
         skills: parts[parts.length-1] || ''
       }
     })()
-  setForm({ title: record.title, targetRole: record.targetRole||'', templateId: record.templateId || '', summary: legacy.summary, experience: legacy.experience, projects: record.projects||'', education: record.education||'', certifications: record.certifications||'', skills: legacy.skills, achievements: record.achievements||'', languages: record.languages||'', publications: record.publications||'', volunteerWork: record.volunteerWork||'', interests: record.interests||'', references: record.references||'', fullName: record.fullName||'', email: record.email||'', phone: record.phone||'', location: record.location||'', linkedin: record.linkedin||'', github: record.github||'', portfolio: record.portfolio||'', website: record.website||'' })
+  setForm({ title: record.title, targetRole: record.targetRole||'', templateId: record.templateId || '', summary: legacy.summary, experience: legacy.experience, projects: safeStringify(record.projects), education: safeStringify(record.education), certifications: safeStringify(record.certifications), skills: legacy.skills, achievements: safeStringify(record.achievements), languages: safeStringify(record.languages), publications: safeStringify(record.publications), volunteerWork: safeStringify(record.volunteerWork), interests: safeStringify(record.interests), references: safeStringify(record.references), fullName: record.fullName||'', email: record.email||'', phone: record.phone||'', location: record.location||'', linkedin: record.linkedin||'', github: record.github||'', portfolio: record.portfolio||'', website: record.website||'' })
   } }, [record])
   useEffect(() => { fetch('/api/templates').then(r=>r.json()).then(d=>{ if(d.success) setTemplates(d.templates) }).catch(()=>{}) }, [])
 
