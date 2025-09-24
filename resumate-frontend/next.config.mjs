@@ -17,15 +17,12 @@ const nextConfig = {
       },
     ],
   },
-  // Static export for Netlify deployment
-  output: 'export',
-  trailingSlash: true,
-  distDir: 'out',
-  experimental: {
-    outputFileTracingExcludes: {
-      '*': ['node_modules/@swc/core-linux-x64-gnu', 'node_modules/@swc/core-linux-x64-musl'],
-    },
+  // Dynamic Next.js app with API routes - no static export
+  outputFileTracingExcludes: {
+    '*': ['node_modules/@swc/core-linux-x64-gnu', 'node_modules/@swc/core-linux-x64-musl'],
   },
+  // Disable build tracing to avoid Windows permission issues during development
+  outputFileTracing: process.env.NODE_ENV === 'production',
 }
 
 export default nextConfig

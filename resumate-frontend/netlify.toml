@@ -1,11 +1,13 @@
 [build]
-  publish = "out"
   command = "pnpm run build"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Enable Next.js Runtime
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  external_node_modules = ["sharp"]
+  node_bundler = "esbuild"
 
 [build.environment]
   NODE_VERSION = "18"
