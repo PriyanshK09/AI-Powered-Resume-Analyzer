@@ -17,9 +17,15 @@ const nextConfig = {
       },
     ],
   },
-  // Removed static export to enable dynamic server routes (auth APIs, cookies, middleware)
-  // If you need a static marketing export later, consider a dual-build approach.
+  // Static export for Netlify deployment
+  output: 'export',
+  trailingSlash: true,
   distDir: 'out',
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': ['node_modules/@swc/core-linux-x64-gnu', 'node_modules/@swc/core-linux-x64-musl'],
+    },
+  },
 }
 
 export default nextConfig

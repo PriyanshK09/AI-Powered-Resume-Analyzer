@@ -1,6 +1,6 @@
 [build]
   publish = "out"
-  command = "npm run build"
+  command = "pnpm run build"
 
 [[redirects]]
   from = "/*"
