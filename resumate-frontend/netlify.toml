@@ -1,5 +1,7 @@
 [build]
   command = "pnpm run build"
+  # Ensure publish dir points to Next.js build output (not static export "out")
+  publish = ".next"
 
 # Enable Next.js Runtime
 [[plugins]]
