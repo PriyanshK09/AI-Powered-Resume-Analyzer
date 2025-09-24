@@ -2,8 +2,12 @@
 import { useEffect, useState } from 'react'
 import Header from '@/components/landing/Header'
 import { useRouter, useSearchParams } from 'next/navigation'
+import dynamic from 'next/dynamic'
 
 interface TemplateMeta { id: string; name: string; image: string; category?: string; accent?: string }
+
+// Force dynamic rendering to avoid prerender issues
+export const dynamic = 'force-dynamic'
 
 export default function TemplatesPage() {
   const router = useRouter()
@@ -15,7 +19,23 @@ export default function TemplatesPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/templates').then(r=>r.json()).then(d=>{ if(d.success) setTemplates(d.templates); else setError(d.message||'Failed') }).catch(e=>setError(e.message)).finally(()=>setLoading(false))
+    // Only run on client side
+    if (typeof window === 'undefined') return
+    
+    fetch('/api/templates')
+      .then(r => r.json())
+      .then(d => { 
+        if (d.success) {
+          setTemplates(d.templates)
+        } else {
+          setError(d.message || 'Failed to load templates')
+        }
+      })
+      .catch(e => {
+        console.error('Failed to load templates:', e)
+        setError('Failed to load templates')
+      })
+      .finally(() => setLoading(false))
   }, [])
 
   function choose(t: TemplateMeta) {
