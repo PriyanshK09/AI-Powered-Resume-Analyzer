@@ -4,13 +4,12 @@ import { analyzeResume } from '@/lib/resumes'
 
 export const dynamic = 'force-dynamic'
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> } | { params: { id: string } }) {
-  const resolved = await (params as any)
-  const id: string = resolved.id
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const session = await readSession()
   if (!session) return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 })
   try {
-    const result = await analyzeResume(session.uid, id)
+    const result = await analyzeResume(session.uid, resolvedParams.id)
     if (!result) return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 })
     return NextResponse.json({ success: true, analysis: result })
   } catch (e) {

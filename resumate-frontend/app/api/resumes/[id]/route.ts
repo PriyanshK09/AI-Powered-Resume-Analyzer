@@ -5,28 +5,26 @@ import { resumeUpdateSchema } from '@/lib/validation'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> } | { params: { id: string } }) {
-  const resolved = await (params as any)
-  const id: string = resolved.id
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const session = await readSession()
   if (!session) return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 })
-  const resume = await getResume(session.uid, id)
+  const resume = await getResume(session.uid, resolvedParams.id)
   if (!resume) return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 })
   return NextResponse.json({ success: true, resume })
 }
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> } | { params: { id: string } }) {
-  const resolved = await (params as any)
-  const id: string = resolved.id
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const session = await readSession()
   if (!session) return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 })
   try {
     const body = await req.json()
-    const parsed = resumeUpdateSchema.safeParse({ ...body, id })
+    const parsed = resumeUpdateSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ success: false, message: parsed.error.issues[0].message }, { status: 400 })
-  // Whitelist properties (exclude id) to avoid unintended updates
+  // Whitelist properties to avoid unintended updates
   const { 
-    id: _discard, title, content, targetRole, templateId, summary, experience, skills, 
+    title, content, targetRole, templateId, summary, experience, skills, 
     fullName, email, phone, location, linkedin, github, portfolio, website,
     projects, education, certifications, achievements, languages, publications, 
     volunteerWork, interests, references 
@@ -56,7 +54,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (volunteerWork !== undefined) patch.volunteerWork = volunteerWork
   if (interests !== undefined) patch.interests = interests
   if (references !== undefined) patch.references = references
-  const updated = await updateResume(session.uid, id, patch)
+  const updated = await updateResume(session.uid, resolvedParams.id, patch)
     if (!updated) return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 })
     return NextResponse.json({ success: true, resume: updated })
   } catch (e) {
@@ -65,13 +63,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> } | { params: { id: string } }) {
-  const resolved = await (params as any)
-  const id: string = resolved.id
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const session = await readSession()
   if (!session) return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 })
   try {
-    await deleteResume(session.uid, id)
+    await deleteResume(session.uid, resolvedParams.id)
     return NextResponse.json({ success: true })
   } catch (e) {
     console.error(e)
