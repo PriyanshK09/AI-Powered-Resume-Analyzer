@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readSession } from '@/lib/auth'
+import { readSession } from '@/lib/session'
 import { checkSlugAvailability } from '@/lib/portfolios'
 
 export const dynamic = 'force-dynamic'

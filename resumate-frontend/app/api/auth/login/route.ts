@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 import { loginSchema } from '@/lib/validation'
-import { findUserByEmail, verifyPassword, issueSession } from '@/lib/auth'
+import { findUserByEmail, verifyPassword } from '@/lib/auth'
+import { issueSession } from '@/lib/session'
 import { rateLimit } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {

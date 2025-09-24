@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
-import { readSession } from '@/lib/auth'
+import { readSession } from '@/lib/session'
 import { usersCollection } from '@/lib/mongo'
 
 export async function GET() {

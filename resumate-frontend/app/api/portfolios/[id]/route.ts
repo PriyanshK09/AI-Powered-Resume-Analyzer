@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readSession } from '@/lib/auth'
+import { readSession } from '@/lib/session'
 import { getPortfolio, updatePortfolio, deletePortfolio } from '@/lib/portfolios'
 import { portfolioUpdateSchema } from '@/lib/validation'
 

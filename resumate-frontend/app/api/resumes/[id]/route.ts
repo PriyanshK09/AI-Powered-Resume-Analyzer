@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readSession } from '@/lib/auth'
+import { readSession } from '@/lib/session'
 import { getResume, updateResume, deleteResume } from '@/lib/resumes'
 import { resumeUpdateSchema } from '@/lib/validation'
 

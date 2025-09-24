@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readSession } from '@/lib/auth'
+import { readSession } from '@/lib/session'
 import { analyzeResume } from '@/lib/resumes'
 
 export const dynamic = 'force-dynamic'

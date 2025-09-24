@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revokeSessionCookie } from '@/lib/auth'
+import { revokeSessionCookie } from '@/lib/session'
 
 export async function POST() {
   await revokeSessionCookie()

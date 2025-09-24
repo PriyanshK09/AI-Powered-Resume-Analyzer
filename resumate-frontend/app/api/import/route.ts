@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import pdfParse from 'pdf-parse'
 import { generateStructuredFromRaw, resumesCollection } from '@/lib/resumes'
-import { readSession } from '@/lib/auth'
+import { readSession } from '@/lib/session'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'

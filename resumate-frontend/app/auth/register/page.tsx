@@ -1,6 +1,6 @@
 // @ts-ignore
 import { redirect } from 'next/navigation'
-import { readSession } from '@/lib/auth'
+import { readSession } from '@/lib/session'
 import { RegisterForm } from './RegisterForm'
 
 export const dynamic = 'force-dynamic'
