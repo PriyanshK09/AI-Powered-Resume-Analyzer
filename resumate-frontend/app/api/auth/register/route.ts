@@ -12,6 +12,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, message: 'Too many requests' }, { status: 429 })
   }
   try {
+    if (!process.env.MONGODB_URI) {
+      console.error('Auth register error: MONGODB_URI env var not set')
+      return NextResponse.json({ success: false, message: 'Server misconfigured' }, { status: 500 })
+    }
     const body = await req.json()
     const parsed = registerSchema.safeParse(body)
     if (!parsed.success) {
