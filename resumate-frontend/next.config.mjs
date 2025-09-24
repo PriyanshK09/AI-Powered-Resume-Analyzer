@@ -21,8 +21,6 @@ const nextConfig = {
   outputFileTracingExcludes: {
     '*': ['node_modules/@swc/core-linux-x64-gnu', 'node_modules/@swc/core-linux-x64-musl'],
   },
-  // Disable build tracing to avoid Windows permission issues during development
-  outputFileTracing: process.env.NODE_ENV === 'production',
 }
 
 export default nextConfig
