@@ -1,10 +1,12 @@
 import { usersCollection, ensureUserIndexes, UserDoc } from './mongo'
 import crypto from 'crypto'
-import argon2 from 'argon2'
+import { scrypt as _scrypt, randomBytes, timingSafeEqual, randomUUID } from 'crypto'
+import { promisify } from 'util'
 import { SignJWT, jwtVerify, JWTPayload } from 'jose'
 // @ts-ignore
 import { cookies } from 'next/headers'
-import { randomUUID } from 'crypto'
+
+const scrypt = promisify(_scrypt)
 
 const JWT_SECRET = new TextEncoder().encode(process.env.AUTH_SECRET || 'dev-secret-change')
 const ACCESS_TTL_MS = 1000 * 60 * 60 * 12 // 12h
@@ -14,12 +16,40 @@ export interface SessionPayload extends JWTPayload {
   tv: number // tokenVersion for invalidation
 }
 
+// Password hashing using Node's built-in scrypt for portability in serverless
+// Format: scrypt:v1:<saltBase64>:<keyBase64>
+const SCRYPT_PREFIX = 'scrypt:v1:'
 export async function hashPassword(password: string) {
-  return argon2.hash(password, { type: argon2.argon2id })
+  const salt = randomBytes(16)
+  const derived = (await scrypt(password, salt, 64)) as Buffer
+  return `${SCRYPT_PREFIX}${salt.toString('base64')}:${derived.toString('base64')}`
 }
 
-export async function verifyPassword(hash: string, password: string) {
-  try { return await argon2.verify(hash, password) } catch { return false }
+export async function verifyPassword(stored: string, password: string) {
+  if (stored.startsWith(SCRYPT_PREFIX)) {
+    const [, rest] = stored.split(SCRYPT_PREFIX)
+    const [saltB64, keyB64] = rest.split(':')
+    if (!saltB64 || !keyB64) return false
+    const salt = Buffer.from(saltB64, 'base64')
+    const expected = Buffer.from(keyB64, 'base64')
+    try {
+      const derived = (await scrypt(password, salt, expected.length)) as Buffer
+      return timingSafeEqual(derived, expected)
+    } catch {
+      return false
+    }
+  }
+  // Backward compatibility: if legacy argon2 hash, try to verify when argon2 is available
+  if (stored.startsWith('$argon2')) {
+    try {
+      const mod: any = await import('argon2')
+      return await mod.verify(stored, password)
+    } catch (e) {
+      console.warn('argon2 not available to verify legacy hash; consider resetting password')
+      return false
+    }
+  }
+  return false
 }
 
 export async function createUser(email: string, password: string, name?: string) {
