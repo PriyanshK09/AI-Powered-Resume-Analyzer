@@ -180,7 +180,115 @@ export default function CreatePortfolioPage() {
   }
 
   const handleAIGenerate = (data: any) => {
-    setForm(f => ({ ...f, ...data }))
+    // Normalize any structured AI output (arrays/objects) into string fields expected by the form
+    const normalize = (key: string, value: any): string => {
+      if (value == null) return ''
+      if (typeof value === 'string') return value
+      // Per-section formatting
+      const joinBullets = (items: any[]): string => items.map(v => `- ${String(v).trim()}`).join('\n')
+
+      if (Array.isArray(value)) {
+        // Heuristics by key
+        if (['experience', 'projects', 'achievements'].includes(key)) {
+          // Map objects to bullet-ish lines when possible
+          const lines: string[] = []
+          for (const item of value) {
+            if (!item) continue
+            if (typeof item === 'string') { lines.push(item.trim()); continue }
+            if (typeof item === 'object') {
+              const title = item.title || item.role || item.position || ''
+              const org = item.company || item.organization || item.org || ''
+              const period = item.period || item.dates || item.year || ''
+              const header = [title, org].filter(Boolean).join(' @ ')
+              const headWithPeriod = [header, period].filter(Boolean).join(' (') + (period ? ')' : '')
+              if (header || period) lines.push(`- ${headWithPeriod}`.trim())
+              // bullets/details
+              if (Array.isArray(item.bullets)) {
+                for (const b of item.bullets) lines.push(`  • ${String(b).trim()}`)
+              } else if (item.description || item.summary) {
+                lines.push(`  • ${String(item.description || item.summary).trim()}`)
+              }
+              continue
+            }
+            lines.push(String(item))
+          }
+          return lines.join('\n')
+        }
+        if (key === 'education') {
+          const lines: string[] = []
+          for (const item of value) {
+            if (!item) continue
+            if (typeof item === 'string') { lines.push(item.trim()); continue }
+            if (typeof item === 'object') {
+              const degree = item.degree || item.qualification || ''
+              const school = item.school || item.institution || ''
+              const year = item.year || item.graduationYear || item.dates || ''
+              const composed = [degree, school, year].filter(Boolean).join(' | ')
+              if (composed) lines.push(composed)
+              else lines.push(JSON.stringify(item))
+              continue
+            }
+            lines.push(String(item))
+          }
+          return lines.join('\n')
+        }
+        if (key === 'skills' || key === 'metaKeywords') {
+          // Deduplicate and join with comma
+          const flat = value.map(v => (typeof v === 'string' ? v : JSON.stringify(v))).map(s => s.trim()).filter(Boolean)
+          return Array.from(new Set(flat)).join(', ')
+        }
+        if (key === 'testimonials') {
+          const blocks: string[] = []
+          for (const t of value) {
+            if (!t) continue
+            if (typeof t === 'string') { blocks.push(t.trim()); continue }
+            if (typeof t === 'object') {
+              const quote = t.quote || t.text || t.content || ''
+              const author = [t.author, t.name].find(Boolean) || ''
+              const title = t.title || t.role || ''
+              const byline = [author, title].filter(Boolean).join(', ')
+              if (quote || byline) blocks.push(`“${String(quote).trim()}” — ${byline}`.trim())
+              else blocks.push(JSON.stringify(t))
+            }
+          }
+          return blocks.join('\n\n')
+        }
+        if (key === 'services') {
+          return value.map(v => (typeof v === 'string' ? v.trim() : JSON.stringify(v))).filter(Boolean).join('\n')
+        }
+        // default for other arrays: newline bullets
+        return joinBullets(value)
+      }
+      if (typeof value === 'object') {
+        // Provide friendly formatting for common objects
+        if (key === 'skills') {
+          const parts: string[] = []
+          for (const [k, v] of Object.entries(value)) {
+            if (Array.isArray(v)) parts.push(`${k}: ${v.map(x => String(x).trim()).join(', ')}`)
+            else parts.push(`${k}: ${String(v).trim()}`)
+          }
+          return parts.join('\n')
+        }
+        if (key === 'contact') {
+          const { email, phone, location, website } = value as any
+          const parts = [email && `Email: ${email}`, phone && `Phone: ${phone}`, location && `Location: ${location}`, website && `Website: ${website}`].filter(Boolean)
+          if (parts.length) return parts.join(' | ')
+        }
+        // Fallback to JSON string to avoid [object Object]
+        try { return JSON.stringify(value, null, 2) } catch { return String(value) }
+      }
+      return String(value)
+    }
+
+    const normalized: Partial<PortfolioFormData> = {}
+    for (const [k, v] of Object.entries(data)) {
+      // Only normalize keys we know about in the form; ignore extras
+      if ((k as keyof PortfolioFormData) in form) {
+        // @ts-expect-error index type
+        normalized[k] = normalize(k, v)
+      }
+    }
+    setForm(f => ({ ...f, ...normalized }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
